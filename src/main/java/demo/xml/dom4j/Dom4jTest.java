@@ -34,6 +34,7 @@ public class Dom4jTest {
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public static ArrayList<Book> dom4jParseXml() throws Exception {
 		ArrayList<Book> booksList = new ArrayList<>();
 		// 创建SAXReader
@@ -46,7 +47,7 @@ public class Dom4jTest {
 		// 获取根节点
 		Element rootElement = document.getRootElement();
 		// 获取子节点
-		Iterator bookIterator = rootElement.elementIterator();
+		Iterator<Element> bookIterator = rootElement.elementIterator();
 		while (bookIterator.hasNext()) {
 			Book bookEntity = new Book();
 			Element book = (Element) bookIterator.next();
@@ -61,7 +62,7 @@ public class Dom4jTest {
 				}
 			}
 			// 获取子节点名称和值
-			Iterator bookChildrenIterator = book.elementIterator();
+			Iterator<Element> bookChildrenIterator = book.elementIterator();
 			while (bookChildrenIterator.hasNext()) {
 				Element bookChild = (Element) bookChildrenIterator.next();
 				String name = bookChild.getName();

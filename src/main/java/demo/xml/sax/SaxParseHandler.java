@@ -2,8 +2,6 @@ package demo.xml.sax;
 
 import java.util.ArrayList;
 
-import javax.xml.stream.events.StartElement;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -20,7 +18,7 @@ public class SaxParseHandler extends DefaultHandler {
 	String value = null;
 	Book book = null;
 	private ArrayList<Book> bookList = new ArrayList<>();
-	
+
 	public ArrayList<Book> getBookList() {
 		return bookList;
 	}
