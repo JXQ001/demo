@@ -1,6 +1,7 @@
 package demo.xml.dom;
 
-import java.io.UTFDataFormatException;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import demo.xml.entity.Book;
 
@@ -36,7 +38,11 @@ public class DomTest {
 	public static List<Book> domParseXml() throws Exception {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
-		Document document = builder.parse("src/main/resources/books.xml");
+		//Document document = builder.parse("src/main/resources/books.xml");
+		FileInputStream fs = new FileInputStream("src/main/resources/books.xml");
+		// 解决乱码问题
+		InputStreamReader isr = new InputStreamReader(fs,"UTF-8");
+		Document document = builder.parse(new InputSource(isr));
 		// 创建list
 		List<Book> booksList = new ArrayList<>();
 		// 根据节点名称获取book节点集合
