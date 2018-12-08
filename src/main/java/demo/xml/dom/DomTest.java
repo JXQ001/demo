@@ -1,6 +1,5 @@
 package demo.xml.dom;
 
-import java.io.UTFDataFormatException;
 import java.util.ArrayList;
 import java.util.List;
 
