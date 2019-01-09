@@ -11,7 +11,7 @@ public class Test {
 
 		Context context = new Context(obj);
 		context.zaiXianYuYue("北京张三", "上海李四");
-		context.dianZiMianDan("北京张三", "上海李四");
+		context.dianZiMianDan("北京张三11111", "上海李四");
 		context.chaXunWuLiuGuiJi("1102322");
 		
 		String str = "remote mod";
@@ -21,6 +21,8 @@ public class Test {
 
 	private static void test() {
 		System.out.println("local mod");
+		
+		String string = "local mod ";
 	}
 
 }
