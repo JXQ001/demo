@@ -10,7 +10,7 @@ public class Test {
 		Logistics obj = (Logistics) clazz.newInstance();
 
 		Context context = new Context(obj);
-		context.zaiXianYuYue("北京张三", "上海李四");
+		context.zaiXianYuYue("北京张三123", "上海李四");
 		context.dianZiMianDan("北京张三11111", "上海李四");
 		context.chaXunWuLiuGuiJi("1102322");
 		
@@ -20,9 +20,13 @@ public class Test {
 	}
 
 	private static void test() {
+		String str1 = "remote mod 1";
+		
 		System.out.println("local mod");
 		
 		String string = "local mod ";
+		
+		String str2 = "remote mod 2";
 	}
 
 }
