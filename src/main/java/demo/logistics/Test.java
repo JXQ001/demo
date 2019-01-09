@@ -13,6 +13,7 @@ public class Test {
 		context.zaiXianYuYue("北京张三", "上海李四");
 		context.dianZiMianDan("北京张三", "上海李四");
 		context.chaXunWuLiuGuiJi("1102322");
+		String str = "remote mod";
 	}
 
 }
