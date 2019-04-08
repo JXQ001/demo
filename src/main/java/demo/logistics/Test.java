@@ -27,6 +27,6 @@ public class Test {
 		String string = "local mod ";
 		
 		String str2 = "remote mod 2";
+	
 	}
-
 }
