@@ -36,12 +36,13 @@ public class Main {
 
 			List<School> schools = goods.getSchools();
 			int step = -1;
+			firstRow = 2 + sum;
+
 			for (School school : schools) {
 				String schoolName = school.getSchoolName();
 
 				List<Size> sizes = school.getSizes();
 				int schoolStep = -1;
-
 				schoolFirstRow = 2 + schoolSum;
 
 				for (Size size : sizes) {
@@ -55,32 +56,19 @@ public class Main {
 					step++;
 					schoolStep++;
 				}
-				// writer.merge(2, 3, 4, 4);
-				// writer.merge(4, 5, 4, 4);
-				// if (!schoolFlag) {
-				// schoolFlag = true;
-				// schoolSum = 0;
-				// } else {
-				// schoolFirstRow = 2 + schoolSum;
-				// }
-				// writer.merge(6, 7, 4, 4);
-				// writer.merge(8, 9, 4, 4);
 				int schoolLastRow = schoolFirstRow + schoolStep;
-				merges.add(new Merge(schoolFirstRow, schoolLastRow, 4, 4));
-			}
-			if (!flag) {
-				flag = true;
-				sum = 0;
-			} else {
-				firstRow = 2 + sum;
+				if (schoolFirstRow != schoolLastRow) {
+					merges.add(new Merge(schoolFirstRow, schoolLastRow, 4, 4));
+				}
 			}
 			int lastRow = firstRow + step;
-			merges.add(new Merge(firstRow, lastRow, 0, 0));
-			merges.add(new Merge(firstRow, lastRow, 1, 1));
-			merges.add(new Merge(firstRow, lastRow, 2, 2));
-			merges.add(new Merge(firstRow, lastRow, 3, 3));
+			if (firstRow != lastRow) {
+				merges.add(new Merge(firstRow, lastRow, 0, 0));
+				merges.add(new Merge(firstRow, lastRow, 1, 1));
+				merges.add(new Merge(firstRow, lastRow, 2, 2));
+				merges.add(new Merge(firstRow, lastRow, 3, 3));
+			}
 		}
-
 		generateExcel(writeModels, merges);
 	}
 
@@ -113,7 +101,7 @@ public class Main {
 		Sheet sheet = new Sheet(1, 3, WriteModel.class, "零售商品生产明细表", null);
 		writer.write(writeModels, sheet);
 
-		// TODO 合并单元格
+		// 合并单元格
 		for (Merge merge : merges) {
 			int firstRow = merge.getFirstRow();
 			int lastRow = merge.getLastRow();
