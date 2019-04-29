@@ -21,7 +21,7 @@ import com.deepoove.poi.util.BytePictureUtils;
 public class Main {
 
 	public static void main(String[] args) throws Exception {
-		// test01();
+		test01();
 		test02();
 	}
 
@@ -43,10 +43,10 @@ public class Main {
 			o1.setSchoolName("北京市 海淀区 北京大学");
 			orders.add(o1);
 		}
-		map.put("order", new DocxRenderData(new File("shipmentBillTemplate.docx"), orders));
+		map.put("order", new DocxRenderData(new File("src/main/resources/shipmentBillTemplate.docx"), orders));
 
-		XWPFTemplate template = XWPFTemplate.compile("order.docx").render(map);
-		FileOutputStream out = new FileOutputStream("out_order.docx");
+		XWPFTemplate template = XWPFTemplate.compile("src/main/resources/order.docx").render(map);
+		FileOutputStream out = new FileOutputStream("src/main/resources/out_order.docx");
 		template.write(out);
 		out.flush();
 		out.close();
@@ -62,10 +62,10 @@ public class Main {
 		map.put("link", new HyperLinkTextRenderData("website.", "http://www.deepoove.com"));
 
 		// 本地图片
-		map.put("localPicture", new PictureRenderData(120, 120, "sayi.png"));
+		map.put("localPicture", new PictureRenderData(120, 120, "src/main/resources/sayi.png"));
 
 		// 本地图片byte数据
-		byte[] localByteArray = BytePictureUtils.getLocalByteArray(new File("logo.png"));
+		byte[] localByteArray = BytePictureUtils.getLocalByteArray(new File("src/main/resources/logo.png"));
 		map.put("localBytePicture", new PictureRenderData(100, 120, ".png", localByteArray));
 
 		// 网络图片
@@ -106,10 +106,10 @@ public class Main {
 				"能够今天做完的事情，不要拖到明天，你的事情没有任何人有义务去帮你做；不要做“宅男”、不要当“宅女”，放假的日子约上三五好友出去转转；经常动手做家务，既能分担伴侣的负担，又有一个干净舒适的环境何乐而不为呢？");
 		segments.add(s2);
 
-		map.put("docx_word", new DocxRenderData(new File("segment.docx"), segments));
+		map.put("docx_word", new DocxRenderData(new File("src/main/resources/segment.docx"), segments));
 
-		XWPFTemplate template = XWPFTemplate.compile("template.docx").render(map);
-		FileOutputStream out = new FileOutputStream("out_template.docx");
+		XWPFTemplate template = XWPFTemplate.compile("src/main/resources/template.docx").render(map);
+		FileOutputStream out = new FileOutputStream("src/main/resources/out_template.docx");
 		template.write(out);
 		out.flush();
 		out.close();
