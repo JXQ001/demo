@@ -12,6 +12,12 @@ import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.metadata.Sheet;
 
+import demo.easyexcel.model.Goods;
+import demo.easyexcel.model.Merge;
+import demo.easyexcel.model.School;
+import demo.easyexcel.model.Size;
+import demo.easyexcel.model.WriteModel;
+
 public class Main {
 
 	public static void main(String[] args) throws Exception {
@@ -23,7 +29,6 @@ public class Main {
 
 		int firstRow = 2;
 		int sum = 0;
-		boolean flag = false;
 
 		int schoolFirstRow = 2;
 		int schoolSum = 0;

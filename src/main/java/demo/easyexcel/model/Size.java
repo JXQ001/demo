@@ -1,4 +1,4 @@
-package demo.easyexcel;
+package demo.easyexcel.model;
 
 public class Size {
 
