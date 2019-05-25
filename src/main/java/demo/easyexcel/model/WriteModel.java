@@ -5,8 +5,6 @@ import com.alibaba.excel.metadata.BaseRowModel;
 
 public class WriteModel extends BaseRowModel {
 
-
-
     @ExcelProperty(value = { "零售商品生产明细表", "商品名称" }, index = 0)
     private String title1;
 

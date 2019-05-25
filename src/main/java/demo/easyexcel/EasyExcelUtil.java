@@ -53,7 +53,7 @@ public class EasyExcelUtil {
     }
 
     public static void main(String[] args) throws Exception {
-        String file = "C:\\Users\\Administrator\\Desktop\\零售商品生产明细表.xlsx";
+        String file = "C:\\Users\\Administrator\\Desktop\\零售商品生产明细表121212121212.xlsx";
         generateExcel(initData(), new FileOutputStream(file));
     }
 
@@ -234,6 +234,16 @@ public class EasyExcelUtil {
             sheet.setTableStyle(createTableStyle());
 
             writer.write(writeModels, sheet);
+
+            // 合并单元格
+            merges.forEach(merge -> {
+                writer.merge(merge.getFirstRow(), merge.getLastRow(), merge.getFirstCol(), merge.getLastCol());
+            });
+
+            Sheet sheet1 = new Sheet(2, 3, WriteModel.class, "零售商品生产明细表1", null);
+            // 设置样式
+            sheet1.setTableStyle(createTableStyle());
+            writer.write(writeModels, sheet1);
 
             // 合并单元格
             merges.forEach(merge -> {
