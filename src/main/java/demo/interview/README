@@ -29,12 +29,11 @@ dubbo
 5.幂等性问题如何保证
 	①在Redis中做标识记录
 	②在数据库中使用唯一索引
-6.如何保证顺序性？使用内存队列处理	
+6.如何保证顺序性？使用内存队列处理
 
 redis
 0.数据类型
 	①string（k-v键值对）②list(文字评论，微博粉丝)、hash(存对象)、set（无序，可去重）、sorted set
-
 1.内存淘汰机制
     ①从已设置过期时间的数据集中淘汰(server.db[i].expires)
         随机过期数据(volatile-random)
@@ -116,5 +115,27 @@ MySQL
 	①数据迁移问题，挂公告停机迁移
 	②不停机，旧库和新库双写
 	③扩容问题
+Mybatis
+1.${}和#{}的区别
+    ①${}静态文本替换，直接替换为字符串,会存在sql注入危险
+    ②#{}预编译处理，sql的参数占位符，会被替换为？，sql执行前会使用preparedStatement的set方法设置参数
+2.xml文件中的标签
+    select、update、delete、insert、resultMap、parameterMap、sql、include、selectKey
+3.
 
+SpringBoot
+1.
+2.
+3.
+
+
+SpringCloud
+1.核心组件
+    ①Eureka：各个服务启动时，Eureka Client都会将服务注册到Eureka Server，并且Eureka Client还可以反过来从Eureka Server拉取注册表，从而知道其他服务在哪里
+    ②Ribbon：服务间发起请求的时候，基于Ribbon做负载均衡，从一个服务的多台机器中选择一台
+    ③Feign：基于Feign的动态代理机制，根据注解和选择的机器，拼接请求URL地址，发起请求
+    ④Hystrix：发起请求是通过Hystrix的线程池来走的，不同的服务走不同的线程池，实现了不同服务调用的隔离，避免了服务雪崩的问题
+    ⑤Zuul：如果前端、移动端要调用后端系统，统一从Zuul网关进入，由Zuul网关转发请求给对应的服务
+2.
+3.
     
