@@ -18,18 +18,20 @@ import com.deepoove.poi.data.style.TableStyle;
 
 /**
  * 付款通知书：表格操作示例
+ * 
  * @author Sayi
- * @version 
+ * @version
  */
 public class PaymentExample {
-    
-    PaymentData datas = new PaymentData();
-    
-    Style headTextStyle = new Style();
-    TableStyle headStyle = new TableStyle();
-    TableStyle rowStyle = new TableStyle();
-    
-    @Before
+
+	PaymentData datas = new PaymentData();
+
+	Style headTextStyle = new Style();
+	TableStyle headStyle = new TableStyle();
+	TableStyle rowStyle = new TableStyle();
+	TextStyle textStyle = new TextStyle();
+
+	@Before
     public void init(){
         headTextStyle.setFontFamily("Hei");
         headTextStyle.setFontSize(9);
@@ -39,9 +41,10 @@ public class PaymentExample {
         headStyle.setAlign(STJc.CENTER);
         
         rowStyle = new TableStyle();
-        rowStyle.setAlign(STJc.CENTER);
+        //rowStyle.setAlign(STJc.CENTER);
         
-        
+        textStyle.setAlign(STJc.CENTER);
+        //textStyle.setBold(true);
         
         datas.setNO("KB.6890451");
         datas.setID("ZHANG_SAN_091");
@@ -69,8 +72,16 @@ public class PaymentExample {
         datas.setOrder(miniTableRenderData);
         
         DetailData detailTable = new DetailData();
-        RowRenderData good = RowRenderData.build("4", "墙纸", "书房+卧室", "1500", "/", "400", "1600");
-        good.setStyle(rowStyle);
+//        RowRenderData good = RowRenderData.build("4", "墙纸", "书房+卧室", "1500", "/", "400", "1600");
+        RowRenderData good = RowRenderData.build(
+        		new TextRenderData("4", textStyle),
+        		new TextRenderData("墙纸", textStyle),
+        		new TextRenderData("书房+卧室", textStyle),
+        		new TextRenderData("1500", textStyle),
+        		new TextRenderData("/", textStyle),
+        		new TextRenderData("400", textStyle),
+        		new TextRenderData("1600", textStyle));
+        //good.setStyle(rowStyle);
         List<RowRenderData> goods = Arrays.asList(good, good, good);
         RowRenderData  labor = RowRenderData.build("油漆工", "2", "200", "400");
         labor.setStyle(rowStyle);
@@ -80,15 +91,15 @@ public class PaymentExample {
         datas.setDetailTable(detailTable);
     }
 
-    @Test
-    public void testResumeExample() throws Exception {
-        Configure config = Configure.newBuilder().customPolicy("detail_table", new DetailTablePolicy()).build();
-        XWPFTemplate template = XWPFTemplate.compile("src/test/resources/付款通知书.docx", config).render(datas);
-        FileOutputStream out = new FileOutputStream("out_付款通知书.docx");
-        template.write(out);
-        out.flush();
-        out.close();
-        template.close();
-    }
+	@Test
+	public void testResumeExample() throws Exception {
+		Configure config = Configure.newBuilder().customPolicy("detail_table", new DetailTablePolicy()).build();
+		XWPFTemplate template = XWPFTemplate.compile("src/test/resources/付款通知书.docx", config).render(datas);
+		FileOutputStream out = new FileOutputStream("src/test/resources/out_付款通知书.docx");
+		template.write(out);
+		out.flush();
+		out.close();
+		template.close();
+	}
 
 }
