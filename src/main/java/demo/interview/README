@@ -115,13 +115,14 @@ MySQL
 	①数据迁移问题，挂公告停机迁移
 	②不停机，旧库和新库双写
 	③扩容问题
+6.联合索引的最左原则，a_b_c_index(col_a,col_b,col_b),abc命中，a,ac,ab命中，bac,cab命中，bc,b,c不中
+	
 Mybatis
 1.${}和#{}的区别
     ①${}静态文本替换，直接替换为字符串,会存在sql注入危险
     ②#{}预编译处理，sql的参数占位符，会被替换为？，sql执行前会使用preparedStatement的set方法设置参数
 2.xml文件中的标签
     select、update、delete、insert、resultMap、parameterMap、sql、include、selectKey
-3.
 
 SpringBoot
 1.
@@ -139,4 +140,56 @@ SpringCloud
 	①SpringBoot可以离开SpringCloud独立使用开发项目，但是SpringCloud离不开SpringBoot，属于依赖的关系.
 	②SpringBoot专注于快速、方便的开发单个微服务个体，SpringCloud关注全局的服务治理框架。
 3.
+
+JVM
+1.JVM的内存结构
+	①Eden区新生代8			 
+	②Survivor0(From)年轻代1  
+	③Survivor1(To)年轻代1	
+	前三个占用1/3堆，复制->清空->互换，交换15次之后还存活的对象放入老年代
+	④Old Generation for older objects老年代，占用2/3堆
+	⑤1.7之前，Permanent Generation for older objects永久代，1.8之后MetaSpace VM MetaData in native memor元空间
+2.垃圾回收算法
+	①引用计数,有对象引用+1，没有对象引用-1，直到为0则认为不在使用，比较难解决循环引用问题，JVM一般不使用
+	②复制，整体复制，大对象会耗时，不会存在碎片，浪费空间，用在新生代
+	③标记清除，先标记后清除，不会大面积复制，存在内存碎片，用在老年代
+	④标记整理，在标记清除的基础上的一动对象，减少内存碎片，移动对象会耗时间，用在老年代
+3.GC Root，可达性分析(根路径搜索法)，不可达的对象将会被回收，可作为GC Root的对象
+	①虚拟机栈中（局部变量）的引用的对象
+	②方法区中的类静态属性引用的对象
+	③方法区中常量引用的对象
+	④本地方法栈中JNI（native）中引用的对象
+4.JVM参数值设置-XX，使用jps查看进程号，使用jinfo -flag 属性名 进程号 查看当前进程是设置的参数
+	①Boolean类型 -XX:+或者-某个属性,+开启-关闭,例子：-XX:+PrintGCDetails开启打印GC日志
+	②KV键值对类型 -XX:属性名=属性值，例-XX:MetaSpaceSize=128m 设置元空间大小128兆，默认的是21兆
+	③-Xms == -XX:InitialHeapSize初始化堆大小(1/64),-XX:MaxHeapSize最大堆内存（物理内存的1/4）,-Xss默认单线程栈大小512k-1024k
+	④查看JVM初始的全部的(全局的)参数值使用java -XX:+PrintFlagsInitial     	 =	未修改 
+    ⑤查看修改更新的参数java -XX:+PrintFlagsFinal							:= 	修改过
+    ⑥MetaSpace只受本地内存影响，默认只是20多兆，需要调整,例子-XX:MetaSpace=512m
+5.OOM内存溢出类型
+	①java.lang.StackOverflowError栈溢出错误
+	②java.lang.OutOfMemoryError：Java heap space堆溢出
+	③java.lang.OutOfMemoryError：GC overhead limit exceeded超出GC范围（大部分都在GC98%）
+	④java.lang.OutOfMemoryError：Direct buffer memory
+	⑤java.lang.OutOfMemoryError：unable to create new native thread
+	⑥java.lang.OutOfMemoryError：MetaSpace
+6.垃圾回收器
+	①Serial串行，单线程垃圾回收的不适用服务器，停止用户线程
+		UseSerialGC
+	②Parallel并行，多个线程垃圾回收，停止用户线程
+		UseParallelGC,UseParNewGC,UseParOldGC	
+	③CMS并发标记清除，不停止用户线程，互联网最多使用
+		UseConcMarkSweepGC
+	④G1，将堆内存分成不同的模块，并发进行垃圾回收
+	    UseG1GC
+Spring
+1.IOC容器，控制反转，是一种思想，Spring的核心。所谓Ioc,就是spring来负责控制对象的生命周期和对象之间的依赖关系。
+2.AOP面向切面，也是一种思想，底层使用JDKproxy和Cglib动态代理
+	①JDK Proxy,基于实现接口,只能代理实现了接口的类，而不能实现接口的类就不能实现JDK的动态代理    
+    ②Cglib,是针对类来实现代理的，他的原理是对指定的目标类生成一个子类，并覆盖其中方法实现增强，但因为采用的是继承，所以不能对final修饰的类进行代理
+    
+    
+    
+    
+    
     
