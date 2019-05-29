@@ -73,6 +73,12 @@ redis
                       当sleep()状态超时、join()等待线程终止或者超时、或者I/O处理完毕时，线程重新转入就绪状态。
     ⑤死亡状态(Dead)：线程执行完了或者因异常退出了run()方法，该线程结束生命周期。
 
+阻塞队列BlockingQueue
+1.为什么使用阻塞队列
+    在concurrent并发包之前，在对线程环境下，程序员需要自己去控制线程的等待唤醒，还要考虑线程安全和效率问题，使用BlockingQueue之后我们讲不用
+    关心这些问题，BlockingQueue可以帮我们控制这些。
+2.底层原理
+
 线程池
 1.七大参数
 	①corePoolSize,线程池中常驻的核心线程数
@@ -94,9 +100,7 @@ redis
 	③一致性问题，事务如何保证
 3.如何保证消息队列的高可用？
 	①集群
-	②
-	③	
-4.如何保证消息队列的幂等性（重复消费），每次消费的时候先去验证是否消费了本条数据，消费过直接丢弃	
+4.如何保证消息队列的幂等性（重复消费），每次消费的时候先去验证是否消费了本条数据，消费过直接丢弃
 	①要求生产者每次发送消息的时候添加全局唯一ID,消费者可以先去数据库中查询，存在则不插入
 	②每次消费完了将数据写到redis一份，下次再消费之前先去Redis中查询，存在则不插入
 	③在数据库中使用唯一索引  
@@ -204,14 +208,27 @@ JMM(java内存模型)
 （volatile不保证），如何解决？
 	①使用synchronized关键字
 	②使用java.util.concurrent包下的原子包装类
-3、有序性（volatile禁止指令重排）
+3、有序性（volatile禁止指令重排）底层原理是使用内存屏障
     ①在多线程中，源代码--->编译器的指令重排---> 指令并行的重排--->内存系统的重排--->最终执行的代码
-
-4.CAS比较并交换
-
-CountDownLatch 倒数  10 9 ... 1   开始执行
-CyclicBarrier  加数  1 2 ... 10   开始执行
-Semaphore      信号量，处理多个资源的互斥，并发线程数的控制
+4.CAS比较并交换(automic原子类的底层使用的时cas,cas底层使用的时unsafe类方法来保证)
+    自旋锁，每次修改前都做比较，底层使用native的unsafe类保证，可能会出现ABA问题，解决办法是使用带有时间戳的原子引用类
+    AutomicStampedReference
+5.集合类的并发修改
+    ①list,vector、Collections.synchronizedList、CopyOnWriteArrayList
+        底层是private transient volatile Object[] array，add方法内部使用ReentrantLock
+    ②map,hashTable、Collections.synchronizedMap,ConcurrentHashMap
+        ConcurrentHashMap底层原理：1.7之前是segment分段锁1.8后是锁node节点
+    ③set,CopyOnWriteArraySet底层是CopyOnWriteArrayList
+6.synchronized和lock的区别，使用lock有什么好处
+    ①synchronized是关键字属于JVM层面，lock是具体的类（java.util.concurrent.locks.lock）属于API层面的
+    ②synchronized不需要手动释放锁，当代码执行完系统会自动让线程释放锁，lock需要手动加锁lock和释放锁unlock并配合try/finally使用
+    ③synchronized等待不可中断，除非线程抛出异常或者代码执行完成，lock可以设置超时方法tryLock(),或者使用interrupt()方法
+    ④synchronized非公平，ReentrantLock默认是非公平锁，构造方法可传入true非公平和false公平
+    ⑤synchronized不支持精确精确唤醒线程，要么随机唤醒一个线程要么唤醒全部线程，lock支持绑定多个condition使用await阻塞，signal唤醒指定线程
+7.其他
+    CountDownLatch 倒数  10 9 ... 1   开始执行
+    CyclicBarrier  加数  1 2 ... 10   开始执行
+    Semaphore      信号量，处理多个资源的互斥，并发线程数的控制
 
 Spring
 1.IOC容器，控制反转，是一种思想，Spring的核心。所谓Ioc,就是spring来负责控制对象的生命周期和对象之间的依赖关系。
