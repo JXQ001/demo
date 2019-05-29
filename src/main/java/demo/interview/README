@@ -12,7 +12,7 @@
 dubbo
 1. 支持的协议？
 	①默认dubbo协议，单一长连接，异步NIO,hessian序列化
-	②rmi、http、redis、
+	②rmi、http、redis
 2.负载均衡策略？
 	①random loadbalance	随机调用，可以设置权重，权重越高分配请求越多
 	②roundrobin loadbalance	轮询，也根据机器的配置可以设置权重
@@ -182,6 +182,23 @@ JVM
 		UseConcMarkSweepGC
 	④G1，将堆内存分成不同的模块，并发进行垃圾回收
 	    UseG1GC
+
+JMM(java内存模型)
+1、内存的可见性：在多线程环境中，一个线程对共享变量的修改，能够被其他线程看到。（volatile可保证）
+      共享变量：如果一个变量在多个线程的工作内存中存在副本，这个变量就是这几个线程的共享变量
+2、原子性：当前线程对一个对象的修改不能被其他的线程打断，本次修改要么成功，要么失败。
+（volatile不保证），如何解决？
+	①使用synchronized关键字
+	②使用java.util.concurrent包下的原子包装类
+3、有序性（volatile禁止指令重排）
+    ①在多线程中，源代码--->编译器的指令重排---> 指令并行的重排--->内存系统的重排--->最终执行的代码
+
+4.CAS比较并交换
+
+CountDownLatch 倒数  10 9 ... 1   开始执行
+CyclicBarrier  加数  1 2 ... 10   开始执行
+Semaphore      信号量，处理多个资源的互斥，并发线程数的控制
+
 Spring
 1.IOC容器，控制反转，是一种思想，Spring的核心。所谓Ioc,就是spring来负责控制对象的生命周期和对象之间的依赖关系。
 2.AOP面向切面，也是一种思想，底层使用JDKproxy和Cglib动态代理
