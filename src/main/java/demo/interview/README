@@ -1,0 +1,243 @@
+分布式缓存
+1.项目中缓存的使用场景
+	高性能，查询商品信息，商品在上架后在短时间一般不会改变，这个时候可以将数据加入缓存，提升用户查询的速度（提升用户体验）
+2.为什么使用缓存
+	高性能，高并发（未使用）
+3.使用缓存后有什么问题
+	系统复杂性，可用性，一致性
+4.如何保证数据库和缓存的读写一致,按Cache Aside pattern原则
+	①读的时候先读取缓存中的数据，缓存不存在在读取数据库中，然后将读取的数据放入缓存并响应请求
+	②写的时候先删除缓存中的数据，然后更新数据库
+
+dubbo
+1. 支持的协议？
+	①默认dubbo协议，单一长连接，异步NIO,hessian序列化
+	②rmi、http、redis
+2.负载均衡策略？
+	①random loadbalance	随机调用，可以设置权重，权重越高分配请求越多
+	②roundrobin loadbalance	轮询，也根据机器的配置可以设置权重
+	③leastactive loadbalance 自动感知，给性能差的机器分配少的请求
+	④consistant hash loadbalance 一致性hash,将相同参数的请求分发到同一个机器上 
+3.集群容错
+	①fallover cluster，默认的容错，失败自动重试，常用于读操作
+	②failfast cluster，一次失败立即失效，常用于写操作
+	③failsafe cluster，出现异常忽略，记录日志
+	④failback cluster，失败后定时重试，记录日志
+	⑤forKing cluster，并行的调用多个provider，只要一个成功就返回
+	⑥broadcast cluster，逐个调用所有的provider
+4.spi思想,service provicer interface
+5.幂等性问题如何保证
+	①在Redis中做标识记录
+	②在数据库中使用唯一索引
+6.如何保证顺序性？使用内存队列处理
+
+redis
+0.数据类型
+	①string（k-v键值对）②list(文字评论，微博粉丝)、hash(存对象)、set（无序，可去重）、sorted set
+1.内存淘汰机制
+    ①从已设置过期时间的数据集中淘汰(server.db[i].expires)
+        随机过期数据(volatile-random)
+        最少使用的数据(volatile-ttl)
+        将要过期的数据(volatile-lru)
+    ②当内存不足以容纳写入数据时，在键空间中，移出最近最少使用的key(allkeys-lru),最常用
+    ③从数据集(server.db[i].dict)中随机任意选择数据淘汰（allkeys-random）
+    ④禁止驱逐数据（no-eviction），内存不足写入报错，不使用
+2.持久化
+    ①快照（RDB）,默认的持久化方式，save 900 1 900秒后1个key变化会触发
+    ②追加（AOF），默认不开启，通过appendonly yes 开启，
+    ③redis4.0之后支持RDB和AOF混合持久化，默认关闭，通过aof-use-rdb-preamble开启
+3.缓存雪崩和缓存穿透问题
+    ①缓存雪崩，缓存同一时间失效，请求落到数据库，导致数据库短时间承受大量请求崩掉。
+        解决：
+            1.事前，保证redis集群的高可用，选择合适的内存淘汰策略
+            2.事中，本职ehcache+限流组件缓存
+            3.事后，利用持久化机制保存的数据恢复缓存
+    ②缓存穿透，用户请求缓存中不存在的数据，导致请求落在数据库上，造成数据库短时间承受大量数据崩掉。
+            解决：
+            1.使用布隆过滤器，将所有可能存在的数据哈希到一个足够大的bitmap中，一个一定不存在的数据会被拦截
+            2.粗暴的方法，将查询为空（不管数据不存在，系统故障）的数据也进行缓存，设置较短的过期时间
+4.集群的方式
+    ①主从复制
+    ②哨兵模式
+    ③Cluster集群
+
+多线程
+1.线程的状态以及状态之间的相互转换
+    ①新建状态(New)：新创建了一个线程对象。
+    ②就绪状态(Runnable)：线程对象创建后，其他线程调用了该对象的start()方法。该状态的线程位于可运行线程池中，变得可运行，等待获取CPU的使用权。
+    ③运行状态(Running)：就绪状态的线程获取了CPU，执行程序代码。
+    ④阻塞状态(Blocked)：阻塞状态是线程因为某种原因放弃CPU使用权，暂时停止运行。直到线程进入就绪状态，才有机会转到运行状态。阻塞的情况分三种：
+        (一)、等待阻塞：运行的线程执行wait()方法，JVM会把该线程放入等待池中。
+        (二)、同步阻塞：运行的线程在获取对象的同步锁时，若该同步锁被别的线程占用，则JVM会把该线程放入锁池中。
+        (三)、其他阻塞：运行的线程执行sleep()或join()方法，或者发出了I/O请求时，JVM会把该线程置为阻塞状态。
+                      当sleep()状态超时、join()等待线程终止或者超时、或者I/O处理完毕时，线程重新转入就绪状态。
+    ⑤死亡状态(Dead)：线程执行完了或者因异常退出了run()方法，该线程结束生命周期。
+
+阻塞队列BlockingQueue
+1.为什么使用阻塞队列
+    在concurrent并发包之前，在对线程环境下，程序员需要自己去控制线程的等待唤醒，还要考虑线程安全和效率问题，使用BlockingQueue之后我们讲不用
+    关心这些问题，BlockingQueue可以帮我们控制这些。
+2.底层原理
+
+线程池
+1.七大参数
+	①corePoolSize,线程池中常驻的核心线程数
+	②maximumPoolSize,线程池的最大线程数
+	③keepAliveTime,当前线程池中的线程数超过了核心线程数，当空闲时间到达keepAliveTime值时，多余的空闲线程会被销毁，直到剩下corePoolSize的线程数
+	④unit,keepAliveTime的单位
+	⑤workQueue,任务队列，被提交但未被执行的任务
+	⑥threadFactory,创建线程的工厂，一般默认
+	⑦handler,拒绝策略，当达到线程池最大线程数并且任务队列满了之后触发的拒绝请求执行的runnable的策略
+
+消息队列
+1.为什么要使用消息队列？
+	①解耦，多个系统耦合在一起，维护成本高，使用pub/sub发布订阅来解耦
+	②异步，用户发送一个请求到一个系统，但这个系统要调用其他系统，耗时较大，会延时，可以把消息发到mq中
+	③肖峰，某个时间段用户访问量很大，系统直接链接数据库，会让数据库崩掉，可以先把数据发到mq	
+2.消息队列有什么缺点？
+	①系统的可用性降低，mq故障后发送方无法发送消息，消费方无法消费消息
+	②系统的复杂性提高了，消息丢失、重复消费、无序、积压	
+	③一致性问题，事务如何保证
+3.如何保证消息队列的高可用？
+	①集群
+4.如何保证消息队列的幂等性（重复消费），每次消费的时候先去验证是否消费了本条数据，消费过直接丢弃
+	①要求生产者每次发送消息的时候添加全局唯一ID,消费者可以先去数据库中查询，存在则不插入
+	②每次消费完了将数据写到redis一份，下次再消费之前先去Redis中查询，存在则不插入
+	③在数据库中使用唯一索引  
+5.如何处理消息传输的丢失？（生产者发送了，消费者没消费）
+	①基于事务（rabbitMQ），会导致阻塞，降低吞吐量
+	②使用confirm模式，异步回调，生产者提供回调接口给MQ
+	③开启rabbitMQ持久化
+	④关闭消费者的（AutoAck）自动确认消费，改为手动确认消息已消费    
+    ⑤kafka设置同步成功才返回成功给消费者，生产者对于发送失败的进行重试
+6.如何保证消息的有序性？
+	①给需要保证顺序的消息放在一个queue中让消费者去消费
+	②消费者多线程处理消息的无序性，开启多线程之前使用内存队列去分发
+7.如何处理消息大量消息积压？	
+	①mq磁盘充足情况下，消费者故障了，将消费者消费的消息不要入库，直接写到新的队列中，部署多台临时消费者从新的队列中去快速消费
+	②mq磁盘满了，消费者直接消费，不入库，通过定时任务将那些消息重新发送给mq
+	③消息设置了过期时间（尽量不设置），还没有消费就过期了，使用定时任务处理
+8.如果让你设计一个MQ,如何做？
+	①分布式可扩容
+	②高可用，不要随便挂掉
+	③持久化，不要丢失消息
+
+MySQL
+1.主从复制，一主多从
+2.主从延迟，主库binlog->从库relaylog->数据，插入更新后立马查询，查询不到问题（重试查询）
+3.主从复制数据丢失，从库还没同步完，主库挂掉了，使用半同步复制解决
+4.并行复制，多库并发重放relay日志，缓解主从延迟
+5.分库分表
+	①数据迁移问题，挂公告停机迁移
+	②不停机，旧库和新库双写
+	③扩容问题
+6.联合索引的最左原则，a_b_c_index(col_a,col_b,col_b),abc命中，a,ac,ab命中，bac,cab命中，bc,b,c不中
+	
+Mybatis
+1.${}和#{}的区别
+    ①${}静态文本替换，直接替换为字符串,会存在sql注入危险
+    ②#{}预编译处理，sql的参数占位符，会被替换为？，sql执行前会使用preparedStatement的set方法设置参数
+2.xml文件中的标签
+    select、update、delete、insert、resultMap、parameterMap、sql、include、selectKey
+
+SpringBoot
+1.
+2.
+3.
+
+SpringCloud
+1.核心组件
+    ①Eureka：各个服务启动时，Eureka Client都会将服务注册到Eureka Server，并且Eureka Client还可以反过来从Eureka Server拉取注册表，从而知道其他服务在哪里
+    ②Ribbon：服务间发起请求的时候，基于Ribbon做负载均衡，从一个服务的多台机器中选择一台
+    ③Feign：基于Feign的动态代理机制，根据注解和选择的机器，拼接请求URL地址，发起请求
+    ④Hystrix：发起请求是通过Hystrix的线程池来走的，不同的服务走不同的线程池，实现了不同服务调用的隔离，避免了服务雪崩的问题
+      Hystrix dashboard
+    ⑤Zuul：如果前端、移动端要调用后端系统，统一从Zuul网关进入，由Zuul网关转发请求给对应的服务
+    ⑥Config：配置中心
+2.SpringBoot和SpringCloud的关系区别
+	①SpringBoot可以离开SpringCloud独立使用开发项目，但是SpringCloud离不开SpringBoot，属于依赖的关系.
+	②SpringBoot专注于快速、方便的开发单个微服务个体，SpringCloud关注全局的服务治理框架。
+3.
+
+JVM
+1.JVM的内存结构
+	①Eden区新生代8			 
+	②Survivor0(From)年轻代1  
+	③Survivor1(To)年轻代1	
+	前三个占用1/3堆，复制->清空->互换，交换15次之后还存活的对象放入老年代
+	④Old Generation for older objects老年代，占用2/3堆
+	⑤1.7之前，Permanent Generation for older objects永久代，1.8之后MetaSpace VM MetaData in native memor元空间
+2.垃圾回收算法
+	①引用计数,有对象引用+1，没有对象引用-1，直到为0则认为不在使用，比较难解决循环引用问题，JVM一般不使用
+	②复制，整体复制，大对象会耗时，不会存在碎片，浪费空间，用在新生代
+	③标记清除，先标记后清除，不会大面积复制，存在内存碎片，用在老年代
+	④标记整理，在标记清除的基础上的一动对象，减少内存碎片，移动对象会耗时间，用在老年代
+3.GC Root，可达性分析(根路径搜索法)，不可达的对象将会被回收，可作为GC Root的对象
+	①虚拟机栈中（局部变量）的引用的对象
+	②方法区中的类静态属性引用的对象
+	③方法区中常量引用的对象
+	④本地方法栈中JNI（native）中引用的对象
+4.JVM参数值设置-XX，使用jps查看进程号，使用jinfo -flag 属性名 进程号 查看当前进程是设置的参数
+	①Boolean类型 -XX:+或者-某个属性,+开启-关闭,例子：-XX:+PrintGCDetails开启打印GC日志
+	②KV键值对类型 -XX:属性名=属性值，例-XX:MetaSpaceSize=128m 设置元空间大小128兆，默认的是21兆
+	③-Xms == -XX:InitialHeapSize初始化堆大小(1/64),-XX:MaxHeapSize最大堆内存（物理内存的1/4）,-Xss默认单线程栈大小512k-1024k
+	④查看JVM初始的全部的(全局的)参数值使用java -XX:+PrintFlagsInitial     	 =	未修改 
+    ⑤查看修改更新的参数java -XX:+PrintFlagsFinal							:= 	修改过
+    ⑥MetaSpace只受本地内存影响，默认只是20多兆，需要调整,例子-XX:MetaSpace=512m
+5.OOM内存溢出类型
+	①java.lang.StackOverflowError栈溢出错误
+	②java.lang.OutOfMemoryError：Java heap space堆溢出
+	③java.lang.OutOfMemoryError：GC overhead limit exceeded超出GC范围（大部分都在GC98%）
+	④java.lang.OutOfMemoryError：Direct buffer memory
+	⑤java.lang.OutOfMemoryError：unable to create new native thread
+	⑥java.lang.OutOfMemoryError：MetaSpace
+6.垃圾回收器
+	①Serial串行，单线程垃圾回收的不适用服务器，停止用户线程
+		UseSerialGC
+	②Parallel并行，多个线程垃圾回收，停止用户线程
+		UseParallelGC,UseParNewGC,UseParOldGC	
+	③CMS并发标记清除，不停止用户线程，互联网最多使用
+		UseConcMarkSweepGC
+	④G1，将堆内存分成不同的模块，并发进行垃圾回收
+	    UseG1GC
+
+JMM(java内存模型)
+1、内存的可见性：在多线程环境中，一个线程对共享变量的修改，能够被其他线程看到。（volatile可保证）
+      共享变量：如果一个变量在多个线程的工作内存中存在副本，这个变量就是这几个线程的共享变量
+2、原子性：当前线程对一个对象的修改不能被其他的线程打断，本次修改要么成功，要么失败。
+（volatile不保证），如何解决？
+	①使用synchronized关键字
+	②使用java.util.concurrent包下的原子包装类
+3、有序性（volatile禁止指令重排）底层原理是使用内存屏障
+    ①在多线程中，源代码--->编译器的指令重排---> 指令并行的重排--->内存系统的重排--->最终执行的代码
+4.CAS比较并交换(automic原子类的底层使用的时cas,cas底层使用的时unsafe类方法来保证)
+    自旋锁，每次修改前都做比较，底层使用native的unsafe类保证，可能会出现ABA问题，解决办法是使用带有时间戳的原子引用类
+    AutomicStampedReference
+5.集合类的并发修改
+    ①list,vector、Collections.synchronizedList、CopyOnWriteArrayList
+        底层是private transient volatile Object[] array，add方法内部使用ReentrantLock
+    ②map,hashTable、Collections.synchronizedMap,ConcurrentHashMap
+        ConcurrentHashMap底层原理：1.7之前是segment分段锁1.8后是锁node节点
+    ③set,CopyOnWriteArraySet底层是CopyOnWriteArrayList
+6.synchronized和lock的区别，使用lock有什么好处
+    ①synchronized是关键字属于JVM层面，lock是具体的类（java.util.concurrent.locks.lock）属于API层面的
+    ②synchronized不需要手动释放锁，当代码执行完系统会自动让线程释放锁，lock需要手动加锁lock和释放锁unlock并配合try/finally使用
+    ③synchronized等待不可中断，除非线程抛出异常或者代码执行完成，lock可以设置超时方法tryLock(),或者使用interrupt()方法
+    ④synchronized非公平，ReentrantLock默认是非公平锁，构造方法可传入true非公平和false公平
+    ⑤synchronized不支持精确精确唤醒线程，要么随机唤醒一个线程要么唤醒全部线程，lock支持绑定多个condition使用await阻塞，signal唤醒指定线程
+7.其他
+    CountDownLatch 倒数  10 9 ... 1   开始执行
+    CyclicBarrier  加数  1 2 ... 10   开始执行
+    Semaphore      信号量，处理多个资源的互斥，并发线程数的控制
+
+Spring
+1.IOC容器，控制反转，是一种思想，Spring的核心。所谓Ioc,就是spring来负责控制对象的生命周期和对象之间的依赖关系。
+2.AOP面向切面，也是一种思想，底层使用JDKproxy和Cglib动态代理
+	①JDK Proxy,基于实现接口,只能代理实现了接口的类，而不能实现接口的类就不能实现JDK的动态代理    
+    ②Cglib,是针对类来实现代理的，他的原理是对指定的目标类生成一个子类，并覆盖其中方法实现增强，但因为采用的是继承，所以不能对final修饰的类进行代理
+    
+    
+    
+    
+    
+    
